@@ -143,5 +143,49 @@ export const styles = StyleSheet.create({
     color: '#AAA',
     fontSize: 13,
     marginTop: 12,
-  }
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.32)',
+  },
+  modalSheet: {
+    backgroundColor: '#FFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 18,
+    paddingBottom: 28,
+    minHeight: 280,
+    maxHeight: '70%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: theme.colors.textStrong,
+  },
+  commentItem: {
+    marginTop: 10,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: '#FAFAFA',
+    borderWidth: 1,
+    borderColor: '#EFEFEF',
+  },
+  commentUser: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#2D2D2D',
+    marginBottom: 4,
+  },
+  commentText: {
+    fontSize: 14,
+    color: '#4A4A4A',
+    lineHeight: 19,
+  },
 });

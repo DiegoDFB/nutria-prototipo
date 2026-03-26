@@ -183,5 +183,91 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: theme.colors.textStrong,
-  }
+  },
+  postCard: {
+    marginTop: 12,
+    backgroundColor: '#FAFAFA',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#EFEFEF',
+    overflow: 'hidden',
+  },
+  postImage: {
+    width: '100%',
+    height: 180,
+    backgroundColor: '#EEE',
+  },
+  postFooter: {
+    padding: 12,
+  },
+  postCaption: {
+    fontSize: 14,
+    color: '#333',
+    lineHeight: 20,
+  },
+  postMetaRow: {
+    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  likesText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: theme.colors.textStrong,
+  },
+  commentsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  commentsButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: theme.colors.primary,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.32)',
+  },
+  modalSheet: {
+    backgroundColor: '#FFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 18,
+    paddingBottom: 28,
+    minHeight: 280,
+    maxHeight: '70%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: theme.colors.textStrong,
+  },
+  commentItem: {
+    marginTop: 10,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: '#FAFAFA',
+    borderWidth: 1,
+    borderColor: '#EFEFEF',
+  },
+  commentUser: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#2D2D2D',
+    marginBottom: 4,
+  },
+  commentText: {
+    fontSize: 14,
+    color: '#4A4A4A',
+    lineHeight: 19,
+  },
 });

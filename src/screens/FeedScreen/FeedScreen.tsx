@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Image, FlatList, TouchableOpacity, ScrollView, ImageBackground } from 'react-native';
+import { View, Text, Image, FlatList, TouchableOpacity, ScrollView, ImageBackground, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../styles/theme';
 import { styles } from './FeedScreen.styles';
@@ -14,8 +14,26 @@ const STORIES = [
   { id: '7', username: 'marilia', image: 'https://randomuser.me/api/portraits/women/68.jpg' },
 ];
 
+type PostComment = {
+  id: string;
+  username: string;
+  text: string;
+};
+
+type FeedPost = {
+  id: string;
+  username: string;
+  userImage: string;
+  postImage: string;
+  streak: number;
+  likes: number;
+  caption: string;
+  isLiked: boolean;
+  comments: PostComment[];
+};
+
 const FeedScreen: React.FC = () => {
-  const [posts] = useState([
+  const [posts] = useState<FeedPost[]>([
     {
       id: '1',
       username: 'NutriaUser',
@@ -25,6 +43,13 @@ const FeedScreen: React.FC = () => {
       likes: 124,
       caption: 'Almoço focado no objetivo de hoje! Muita cor e proteína. 🥗🍗',
       isLiked: false,
+      comments: [
+        { id: '1', username: 'ana.nutri', text: 'Esse prato ficou lindo e completo!' },
+        { id: '2', username: 'joao.fit', text: 'Boa! Proteina no ponto.' },
+        { id: '3', username: 'carla.saude', text: 'Quero essa receita para hoje.' },
+        { id: '4', username: 'carla.saude', text: 'Quero essa receita para hoje.' },
+        { id: '5', username: 'carla.saude', text: 'Quero essa receita para hoje.' },
+      ],
     },
     {
       id: '2',
@@ -35,8 +60,17 @@ const FeedScreen: React.FC = () => {
       likes: 850,
       caption: 'Dica do dia: preparem seus lanches na noite anterior! 🍎🥜',
       isLiked: true,
+      comments: [
+        { id: '1', username: 'nutria.user', text: 'Dica de ouro para a semana.' },
+        { id: '2', username: 'marilia', text: 'Ja faco isso e ajuda muito mesmo.' },
+      ],
     }
   ]);
+
+  const [selectedPost, setSelectedPost] = useState<FeedPost | null>(null);
+
+  const openComments = (post: FeedPost) => setSelectedPost(post);
+  const closeComments = () => setSelectedPost(null);
 
   return (
     <View style={styles.container}>
@@ -88,7 +122,7 @@ const FeedScreen: React.FC = () => {
                 <TouchableOpacity>
                   <Ionicons name={item.isLiked ? "heart" : "heart-outline"} size={28} color={item.isLiked ? theme.colors.danger : "#333"} />
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => openComments(item)}>
                   <Ionicons name="chatbubble-outline" size={26} color="#333" />
                 </TouchableOpacity>
                 <TouchableOpacity>
@@ -101,11 +135,38 @@ const FeedScreen: React.FC = () => {
                 <Text style={styles.username}>{item.username} </Text>
                 {item.caption}
               </Text>
-              <Text style={styles.addComment}>Ver todos os 12 comentários</Text>
+              <TouchableOpacity onPress={() => openComments(item)}>
+                <Text style={styles.addComment}>Ver todos os {item.comments.length} comentarios</Text>
+              </TouchableOpacity>
             </View>
           </View>
         )}
       />
+
+      <Modal
+        visible={Boolean(selectedPost)}
+        transparent
+        animationType="slide"
+        onRequestClose={closeComments}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalSheet}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Comentarios</Text>
+              <TouchableOpacity onPress={closeComments}>
+                <Ionicons name="close" size={22} color={theme.colors.textStrong} />
+              </TouchableOpacity>
+            </View>
+
+            {selectedPost?.comments.map((comment) => (
+              <View key={comment.id} style={styles.commentItem}>
+                <Text style={styles.commentUser}>{comment.username}</Text>
+                <Text style={styles.commentText}>{comment.text}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };

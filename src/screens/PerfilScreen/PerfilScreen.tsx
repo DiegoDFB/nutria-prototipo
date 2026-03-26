@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../styles/theme';
 import { styles } from './PerfilScreen.styles';
@@ -18,9 +18,54 @@ const DAILY_GOALS = [
   { id: '3', title: 'Agua', value: '1.9 / 2.5 L', progress: 0.76 },
 ];
 
+type PostComment = {
+  id: string;
+  username: string;
+  text: string;
+};
+
+type PerfilPost = {
+  id: string;
+  image: string;
+  caption: string;
+  likes: number;
+  comments: PostComment[];
+};
+
+const MY_POSTS: PerfilPost[] = [
+  {
+    id: '1',
+    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1000&q=80',
+    caption: 'Almoco completo com foco em proteina e vegetais.',
+    likes: 148,
+    comments: [
+      { id: '1', username: 'ana.fit', text: 'Top! Essa combinacao ficou perfeita.' },
+      { id: '2', username: 'dr.nutri', text: 'Muito bom equilibrio de macros.' },
+      { id: '3', username: 'joao.treino', text: 'Vou copiar essa ideia para amanha.' },
+      { id: '4', username: 'joao.treino', text: 'Vou copiar essa ideia para amanha.' },
+      { id: '5', username: 'joao.treino', text: 'Vou copiar essa ideia para amanha.' },
+    ],
+  },
+  {
+    id: '2',
+    image: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1000&q=80',
+    caption: 'Lanche da tarde rapido e nutritivo antes do treino.',
+    likes: 96,
+    comments: [
+      { id: '1', username: 'mari.saude', text: 'Pratico demais para rotina corrida.' },
+      { id: '2', username: 'pedro.atleta', text: 'Esse ficou com cara de muito gostoso.' },
+    ],
+  },
+];
+
 type Props = StackScreenProps<PerfilStackParamList, 'PerfilMain'>;
 
 const PerfilScreen: React.FC<Props> = ({ navigation }) => {
+  const [selectedPost, setSelectedPost] = useState<PerfilPost | null>(null);
+
+  const openComments = (post: PerfilPost) => setSelectedPost(post);
+  const closeComments = () => setSelectedPost(null);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -104,7 +149,60 @@ const PerfilScreen: React.FC<Props> = ({ navigation }) => {
             <Ionicons name="chevron-forward" size={18} color="#999" />
           </TouchableOpacity>
         </View>
+
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>Meus posts</Text>
+
+          {MY_POSTS.map((post) => (
+            <View key={post.id} style={styles.postCard}>
+              <Image source={{ uri: post.image }} style={styles.postImage} />
+
+              <View style={styles.postFooter}>
+                <Text style={styles.postCaption}>{post.caption}</Text>
+
+                <View style={styles.postMetaRow}>
+                  <Text style={styles.likesText}>{post.likes} curtidas</Text>
+
+                  <TouchableOpacity
+                    style={styles.commentsButton}
+                    onPress={() => openComments(post)}
+                  >
+                    <Ionicons name="chatbubble-outline" size={16} color={theme.colors.primary} />
+                    <Text style={styles.commentsButtonText}>
+                      Comentarios ({post.comments.length})
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          ))}
+        </View>
       </ScrollView>
+
+      <Modal
+        visible={Boolean(selectedPost)}
+        transparent
+        animationType="slide"
+        onRequestClose={closeComments}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalSheet}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Comentarios</Text>
+              <TouchableOpacity onPress={closeComments}>
+                <Ionicons name="close" size={22} color={theme.colors.textStrong} />
+              </TouchableOpacity>
+            </View>
+
+            {selectedPost?.comments.map((comment) => (
+              <View key={comment.id} style={styles.commentItem}>
+                <Text style={styles.commentUser}>{comment.username}</Text>
+                <Text style={styles.commentText}>{comment.text}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
