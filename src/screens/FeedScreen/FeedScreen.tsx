@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, Image, FlatList, TouchableOpacity, ScrollView, ImageBackground, Modal } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, Image, FlatList, TouchableOpacity, ScrollView, ImageBackground, Modal, Animated, Easing, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../styles/theme';
 import { styles } from './FeedScreen.styles';
@@ -68,9 +68,59 @@ const FeedScreen: React.FC = () => {
   ]);
 
   const [selectedPost, setSelectedPost] = useState<FeedPost | null>(null);
+  const [isCommentsVisible, setIsCommentsVisible] = useState(false);
+  const overlayOpacity = useRef(new Animated.Value(0)).current;
+  const sheetTranslateY = useRef(new Animated.Value(36)).current;
 
-  const openComments = (post: FeedPost) => setSelectedPost(post);
-  const closeComments = () => setSelectedPost(null);
+  const openComments = (post: FeedPost) => {
+    setSelectedPost(post);
+    setIsCommentsVisible(true);
+  };
+
+  const closeComments = () => {
+    Animated.parallel([
+      Animated.timing(overlayOpacity, {
+        toValue: 0,
+        duration: 220,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(sheetTranslateY, {
+        toValue: 36,
+        duration: 240,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start(({ finished }) => {
+      if (finished) {
+        setIsCommentsVisible(false);
+        setSelectedPost(null);
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (!isCommentsVisible || !selectedPost) {
+      overlayOpacity.setValue(0);
+      sheetTranslateY.setValue(36);
+      return;
+    }
+
+    Animated.parallel([
+      Animated.timing(overlayOpacity, {
+        toValue: 1,
+        duration: 240,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(sheetTranslateY, {
+        toValue: 0,
+        duration: 280,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [isCommentsVisible, overlayOpacity, selectedPost, sheetTranslateY]);
 
   return (
     <View style={styles.container}>
@@ -135,6 +185,12 @@ const FeedScreen: React.FC = () => {
                 <Text style={styles.username}>{item.username} </Text>
                 {item.caption}
               </Text>
+              {item.comments.length > 0 && (
+                <Text style={styles.commentPreview}>
+                  <Text style={styles.commentPreviewUser}>{item.comments[0].username} </Text>
+                  {item.comments[0].text}
+                </Text>
+              )}
               <TouchableOpacity onPress={() => openComments(item)}>
                 <Text style={styles.addComment}>Ver todos os {item.comments.length} comentarios</Text>
               </TouchableOpacity>
@@ -144,13 +200,16 @@ const FeedScreen: React.FC = () => {
       />
 
       <Modal
-        visible={Boolean(selectedPost)}
+        visible={isCommentsVisible}
         transparent
-        animationType="slide"
+        animationType="none"
         onRequestClose={closeComments}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalSheet}>
+        <View style={styles.modalRoot}>
+          <Pressable style={styles.modalOverlayPressable} onPress={closeComments}>
+            <Animated.View style={[styles.modalOverlay, { opacity: overlayOpacity }]} />
+          </Pressable>
+          <Animated.View style={[styles.modalSheet, { transform: [{ translateY: sheetTranslateY }] }]}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Comentarios</Text>
               <TouchableOpacity onPress={closeComments}>
@@ -164,7 +223,7 @@ const FeedScreen: React.FC = () => {
                 <Text style={styles.commentText}>{comment.text}</Text>
               </View>
             ))}
-          </View>
+          </Animated.View>
         </View>
       </Modal>
     </View>

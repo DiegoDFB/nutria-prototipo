@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView, Modal } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, Image, TouchableOpacity, ScrollView, Modal, Animated, Easing, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../styles/theme';
 import { styles } from './PerfilScreen.styles';
@@ -62,9 +62,59 @@ type Props = StackScreenProps<PerfilStackParamList, 'PerfilMain'>;
 
 const PerfilScreen: React.FC<Props> = ({ navigation }) => {
   const [selectedPost, setSelectedPost] = useState<PerfilPost | null>(null);
+  const [isCommentsVisible, setIsCommentsVisible] = useState(false);
+  const overlayOpacity = useRef(new Animated.Value(0)).current;
+  const sheetTranslateY = useRef(new Animated.Value(36)).current;
 
-  const openComments = (post: PerfilPost) => setSelectedPost(post);
-  const closeComments = () => setSelectedPost(null);
+  const openComments = (post: PerfilPost) => {
+    setSelectedPost(post);
+    setIsCommentsVisible(true);
+  };
+
+  const closeComments = () => {
+    Animated.parallel([
+      Animated.timing(overlayOpacity, {
+        toValue: 0,
+        duration: 220,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(sheetTranslateY, {
+        toValue: 36,
+        duration: 240,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start(({ finished }) => {
+      if (finished) {
+        setIsCommentsVisible(false);
+        setSelectedPost(null);
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (!isCommentsVisible || !selectedPost) {
+      overlayOpacity.setValue(0);
+      sheetTranslateY.setValue(36);
+      return;
+    }
+
+    Animated.parallel([
+      Animated.timing(overlayOpacity, {
+        toValue: 1,
+        duration: 240,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(sheetTranslateY, {
+        toValue: 0,
+        duration: 280,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [isCommentsVisible, overlayOpacity, selectedPost, sheetTranslateY]);
 
   return (
     <View style={styles.container}>
@@ -101,7 +151,7 @@ const PerfilScreen: React.FC<Props> = ({ navigation }) => {
 
         <View style={styles.sectionCard}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Metas do dia</Text>
+            <Text style={styles.sectionTitle}>Metas do Dia</Text>
             <TouchableOpacity>
               <Text style={styles.sectionLink}>Ver plano</Text>
             </TouchableOpacity>
@@ -126,7 +176,7 @@ const PerfilScreen: React.FC<Props> = ({ navigation }) => {
         </View>
 
         <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Acoes rapidas</Text>
+          <Text style={styles.sectionTitle}>Ações rápidas</Text>
 
           <TouchableOpacity style={styles.actionRow}>
             <Ionicons name="create-outline" size={20} color={theme.colors.textStrong} />
@@ -180,13 +230,16 @@ const PerfilScreen: React.FC<Props> = ({ navigation }) => {
       </ScrollView>
 
       <Modal
-        visible={Boolean(selectedPost)}
+        visible={isCommentsVisible}
         transparent
-        animationType="slide"
+        animationType="none"
         onRequestClose={closeComments}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalSheet}>
+        <View style={styles.modalRoot}>
+          <Pressable style={styles.modalOverlayPressable} onPress={closeComments}>
+            <Animated.View style={[styles.modalOverlay, { opacity: overlayOpacity }]} />
+          </Pressable>
+          <Animated.View style={[styles.modalSheet, { transform: [{ translateY: sheetTranslateY }] }]}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Comentarios</Text>
               <TouchableOpacity onPress={closeComments}>
@@ -200,7 +253,7 @@ const PerfilScreen: React.FC<Props> = ({ navigation }) => {
                 <Text style={styles.commentText}>{comment.text}</Text>
               </View>
             ))}
-          </View>
+          </Animated.View>
         </View>
       </Modal>
     </View>

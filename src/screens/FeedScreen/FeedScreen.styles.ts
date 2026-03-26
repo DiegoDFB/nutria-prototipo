@@ -144,9 +144,29 @@ export const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 12,
   },
-  modalOverlay: {
+  commentPreview: {
+    marginTop: 8,
+    fontSize: 13,
+    color: '#555',
+    lineHeight: 18,
+  },
+  commentPreviewUser: {
+    fontWeight: '700',
+    color: '#333',
+  },
+  modalRoot: {
     flex: 1,
     justifyContent: 'flex-end',
+  },
+  modalOverlayPressable: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },
+  modalOverlay: {
+    flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.32)',
   },
   modalSheet: {

@@ -27,7 +27,7 @@ const ConfiguracoesScreen: React.FC<Props> = ({ navigation }) => {
 
           <TouchableOpacity style={styles.optionRow}>
             <Ionicons name="person-outline" size={20} color={theme.colors.textStrong} />
-            <Text style={styles.optionText}>Dados pessoais</Text>
+            <Text style={styles.optionText}>Configurações de Privacidade</Text>
             <Ionicons name="chevron-forward" size={18} color="#999" />
           </TouchableOpacity>
 
