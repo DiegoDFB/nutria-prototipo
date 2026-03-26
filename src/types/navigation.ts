@@ -14,3 +14,8 @@ export type MainTabParamList = {
   Grupos: undefined;
   Perfil: undefined;
 };
+
+export type PerfilStackParamList = {
+  PerfilMain: undefined;
+  Configuracoes: undefined;
+};

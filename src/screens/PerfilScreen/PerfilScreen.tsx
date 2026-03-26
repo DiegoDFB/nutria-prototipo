@@ -3,6 +3,8 @@ import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../styles/theme';
 import { styles } from './PerfilScreen.styles';
+import { StackScreenProps } from '@react-navigation/stack';
+import { PerfilStackParamList } from '../../types/navigation';
 
 const METRICS = [
   { id: '1', label: 'Seguidores', value: '1.2K' },
@@ -16,19 +18,13 @@ const DAILY_GOALS = [
   { id: '3', title: 'Agua', value: '1.9 / 2.5 L', progress: 0.76 },
 ];
 
-const PerfilScreen: React.FC = () => {
+type Props = StackScreenProps<PerfilStackParamList, 'PerfilMain'>;
+
+const PerfilScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Image source={{ uri: 'https://i.imgur.com/pPL5jeX.png' }} style={styles.headerLogo} resizeMode="contain" />
-        <View style={styles.headerIcons}>
-          <TouchableOpacity style={styles.iconBadge}>
-            <Ionicons name="search-outline" size={22} color="#333" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconBadge}>
-            <Ionicons name="notifications-outline" size={22} color="#333" />
-          </TouchableOpacity>
-        </View>
       </View>
 
       <ScrollView
@@ -99,7 +95,10 @@ const PerfilScreen: React.FC = () => {
             <Ionicons name="chevron-forward" size={18} color="#999" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionRow}>
+          <TouchableOpacity
+            style={styles.actionRow}
+            onPress={() => navigation.navigate('Configuracoes')}
+          >
             <Ionicons name="settings-outline" size={20} color={theme.colors.textStrong} />
             <Text style={styles.actionText}>Configuracoes</Text>
             <Ionicons name="chevron-forward" size={18} color="#999" />
