@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../styles/theme';
 import { styles } from './PerfilScreen.styles';
 import { StackScreenProps } from '@react-navigation/stack';
-import { PerfilStackParamList } from '../../types/navigation';
+import { PerfilStackParamList, ProfileData } from '../../types/navigation';
 
 const METRICS = [
   { id: '1', label: 'Seguidores', value: '1.2K' },
@@ -60,7 +60,13 @@ const MY_POSTS: PerfilPost[] = [
 
 type Props = StackScreenProps<PerfilStackParamList, 'PerfilMain'>;
 
-const PerfilScreen: React.FC<Props> = ({ navigation }) => {
+const PerfilScreen: React.FC<Props> = ({ navigation, route }) => {
+  const [profile, setProfile] = useState<ProfileData>({
+    name: 'Nutria User',
+    username: '@nutriauser',
+    bio: 'Foco em recomposicao corporal e rotina sem extremismo.',
+    image: 'https://i.imgur.com/lOsEl90.png',
+  });
   const [selectedPost, setSelectedPost] = useState<PerfilPost | null>(null);
   const [isCommentsVisible, setIsCommentsVisible] = useState(false);
   const overlayOpacity = useRef(new Animated.Value(0)).current;
@@ -116,6 +122,17 @@ const PerfilScreen: React.FC<Props> = ({ navigation }) => {
     ]).start();
   }, [isCommentsVisible, overlayOpacity, selectedPost, sheetTranslateY]);
 
+  useEffect(() => {
+    const updatedProfile = route.params?.updatedProfile;
+
+    if (!updatedProfile) {
+      return;
+    }
+
+    setProfile(updatedProfile);
+    navigation.setParams({ updatedProfile: undefined });
+  }, [navigation, route.params?.updatedProfile]);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -128,14 +145,14 @@ const PerfilScreen: React.FC<Props> = ({ navigation }) => {
       >
         <View style={styles.profileCard}>
           <Image
-            source={{ uri: 'https://i.imgur.com/lOsEl90.png' }}
+            source={{ uri: profile.image }}
             style={styles.avatar}
           />
           <View style={styles.profileInfo}>
-            <Text style={styles.name}>Nutria User</Text>
-            <Text style={styles.handle}>@nutriauser</Text>
+            <Text style={styles.name}>{profile.name}</Text>
+            <Text style={styles.handle}>{profile.username}</Text>
             <Text style={styles.bio}>
-              Foco em recomposicao corporal e rotina sem extremismo.
+              {profile.bio}
             </Text>
           </View>
         </View>
@@ -178,7 +195,10 @@ const PerfilScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>Ações rápidas</Text>
 
-          <TouchableOpacity style={styles.actionRow}>
+          <TouchableOpacity
+            style={styles.actionRow}
+            onPress={() => navigation.navigate('EditarPerfil', { profile })}
+          >
             <Ionicons name="create-outline" size={20} color={theme.colors.textStrong} />
             <Text style={styles.actionText}>Editar perfil</Text>
             <Ionicons name="chevron-forward" size={18} color="#999" />

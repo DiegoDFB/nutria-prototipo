@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import GruposScreen from 'screens/GruposScreen/GruposScreen';
 import PerfilScreen from 'screens/PerfilScreen/PerfilScreen';
 import ConfiguracoesScreen from 'screens/ConfiguracoesScreen/ConfiguracoesScreen';
+import EditarPerfilScreen from 'screens/EditarPerfilScreen/EditarPerfilScreen';
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -21,6 +22,7 @@ function PerfilStackNavigator() {
   return (
     <PerfilStack.Navigator screenOptions={{ headerShown: false }}>
       <PerfilStack.Screen name="PerfilMain" component={PerfilScreen} />
+      <PerfilStack.Screen name="EditarPerfil" component={EditarPerfilScreen} />
       <PerfilStack.Screen name="Configuracoes" component={ConfiguracoesScreen} />
     </PerfilStack.Navigator>
   );

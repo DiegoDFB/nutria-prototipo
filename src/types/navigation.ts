@@ -15,7 +15,15 @@ export type MainTabParamList = {
   Perfil: undefined;
 };
 
+export type ProfileData = {
+  name: string;
+  username: string;
+  bio: string;
+  image: string;
+};
+
 export type PerfilStackParamList = {
-  PerfilMain: undefined;
+  PerfilMain: { updatedProfile?: ProfileData } | undefined;
+  EditarPerfil: { profile: ProfileData };
   Configuracoes: undefined;
 };

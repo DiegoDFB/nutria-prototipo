@@ -69,58 +69,68 @@ const FeedScreen: React.FC = () => {
 
   const [selectedPost, setSelectedPost] = useState<FeedPost | null>(null);
   const [isCommentsVisible, setIsCommentsVisible] = useState(false);
-  const overlayOpacity = useRef(new Animated.Value(0)).current;
-  const sheetTranslateY = useRef(new Animated.Value(36)).current;
+  const modalProgress = useRef(new Animated.Value(0)).current;
+  const currentAnimation = useRef<Animated.CompositeAnimation | null>(null);
+  const isClosing = useRef(false);
+
+  const overlayOpacity = modalProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+  });
+  const sheetTranslateY = modalProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [36, 0],
+  });
+
+  const runModalAnimation = (toValue: 0 | 1, onFinished?: () => void) => {
+    currentAnimation.current?.stop();
+    currentAnimation.current = Animated.timing(modalProgress, {
+      toValue,
+      duration: toValue === 1 ? 280 : 220,
+      easing: toValue === 1 ? Easing.out(Easing.cubic) : Easing.in(Easing.cubic),
+      useNativeDriver: true,
+    });
+    currentAnimation.current.start(({ finished }) => {
+      if (finished) {
+        onFinished?.();
+      }
+    });
+  };
 
   const openComments = (post: FeedPost) => {
+    isClosing.current = false;
     setSelectedPost(post);
     setIsCommentsVisible(true);
   };
 
   const closeComments = () => {
-    Animated.parallel([
-      Animated.timing(overlayOpacity, {
-        toValue: 0,
-        duration: 220,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-      Animated.timing(sheetTranslateY, {
-        toValue: 36,
-        duration: 240,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-    ]).start(({ finished }) => {
-      if (finished) {
-        setIsCommentsVisible(false);
-        setSelectedPost(null);
-      }
+    if (!isCommentsVisible || isClosing.current) {
+      return;
+    }
+
+    isClosing.current = true;
+    runModalAnimation(0, () => {
+      isClosing.current = false;
+      setIsCommentsVisible(false);
+      setSelectedPost(null);
     });
   };
 
   useEffect(() => {
     if (!isCommentsVisible || !selectedPost) {
-      overlayOpacity.setValue(0);
-      sheetTranslateY.setValue(36);
+      currentAnimation.current?.stop();
+      modalProgress.setValue(0);
       return;
     }
 
-    Animated.parallel([
-      Animated.timing(overlayOpacity, {
-        toValue: 1,
-        duration: 240,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-      Animated.timing(sheetTranslateY, {
-        toValue: 0,
-        duration: 280,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [isCommentsVisible, overlayOpacity, selectedPost, sheetTranslateY]);
+    runModalAnimation(1);
+  }, [isCommentsVisible, modalProgress, selectedPost]);
+
+  useEffect(() => {
+    return () => {
+      currentAnimation.current?.stop();
+    };
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -203,6 +213,7 @@ const FeedScreen: React.FC = () => {
         visible={isCommentsVisible}
         transparent
         animationType="none"
+        hardwareAccelerated
         onRequestClose={closeComments}
       >
         <View style={styles.modalRoot}>
